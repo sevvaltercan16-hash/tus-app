@@ -311,8 +311,8 @@
       branch: "Anatomi",
       year: "2023 İlkbahar",
       text: "Ulnar sinir hasarında aşağıdaki kaslardan hangisinin fonksiyon kaybına bağlı olarak 'Pençe El' (Claw hand) deformitesi gelişir?",
-      options: ["Musculus lumbricales I ve II", "Musculus adductor pollicis ve interossei", "Musculus flexor carpi radialis", "Musculus extensor digitorum", "Musculus opponens pollicis"],
-      correct: 1,
+      options: ["Musculus adductor pollicis ve interossei", "Musculus lumbricales I ve II", "Musculus flexor carpi radialis", "Musculus extensor digitorum", "Musculus opponens pollicis"],
+      correct: 0,
       exp: "Nervus ulnaris, mm. interossei dorsales/palmares ve 3.-4. lumbrical kasları uyarır. Hasarında 4. ve 5. parmaklarda hiperekstansiyon ve fleksiyon kaybı sonucu 'Pençe El' tablosu gelişir."
     },
     {
@@ -489,6 +489,8 @@
   let timeLeft = 90;
   let cardFlipped = false;
   let cardIdx = 0;
+  let currentShuffledOptions = [];
+  let currentCorrectIdx = 0;
 
   const flashcards = [
     { front: "Sugammadek neyin antagonistidir?", back: "Roküronyum ve Veküronyum" },
@@ -522,6 +524,22 @@
     }
   }
 
+  // Şıkları Rastgele Karıştırma Algoritması
+  function shuffleOptions(optionsArray, correctOriginalIndex) {
+    const correctAnswerText = optionsArray[correctOriginalIndex];
+    let indexedOptions = optionsArray.map((opt, i) => ({ text: opt, isCorrect: i === correctOriginalIndex }));
+    
+    for (let i = indexedOptions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indexedOptions[i], indexedOptions[j]] = [indexedOptions[j], indexedOptions[i]];
+    }
+
+    const shuffledTexts = indexedOptions.map(o => o.text);
+    const newCorrectIndex = indexedOptions.findIndex(o => o.isCorrect);
+
+    return { shuffledTexts, newCorrectIndex };
+  }
+
   function loadQuestion() {
     clearInterval(timer);
     timeLeft = 90;
@@ -537,6 +555,12 @@
     }
 
     const q = pool[currentIdx % pool.length];
+    
+    // Şıkları karıştır
+    const { shuffledTexts, newCorrectIndex } = shuffleOptions(q.options, q.correct);
+    currentShuffledOptions = shuffledTexts;
+    currentCorrectIdx = newCorrectIndex;
+
     document.getElementById('branch-badge').innerText = `${q.branch} (${q.year})`;
     document.getElementById('question-text').innerText = `${currentIdx + 1}. ${q.text}`;
     document.getElementById('explanation-box').style.display = 'none';
@@ -545,7 +569,7 @@
     const container = document.getElementById('options-container');
     container.innerHTML = '';
 
-    q.options.forEach((opt, idx) => {
+    currentShuffledOptions.forEach((opt, idx) => {
       const btn = document.createElement('button');
       btn.className = 'opt-btn';
       btn.innerText = `${String.fromCharCode(65 + idx)}) ${opt}`;
@@ -560,11 +584,11 @@
     
     buttons.forEach((btn, idx) => {
       btn.disabled = true;
-      if (idx === q.correct) btn.classList.add('correct');
-      if (idx === selectedIdx && idx !== q.correct) btn.classList.add('wrong');
+      if (idx === currentCorrectIdx) btn.classList.add('correct');
+      if (idx === selectedIdx && idx !== currentCorrectIdx) btn.classList.add('wrong');
     });
 
-    if (selectedIdx === q.correct) {
+    if (selectedIdx === currentCorrectIdx) {
       score += 10;
     } else {
       if (!wrongQuestions.some(item => item.id === q.id)) {
