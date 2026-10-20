@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TUS Pro - Derece Çalışma İstasyonu</title>
   
-  <!-- Mobil Uygulama ve İkon Ayarları -->
+  <!-- PWA ve Mobil İkon Ayarları -->
   <meta name="theme-color" content="#4f46e5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -181,29 +181,6 @@
       line-height: 1.6;
     }
 
-    .srs-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: 20px;
-    }
-
-    .srs-btn {
-      flex: 1;
-      padding: 12px 8px;
-      border-radius: 8px;
-      border: none;
-      color: white;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .srs-btn:hover { opacity: 0.9; }
-    .btn-easy { background: var(--success); }
-    .btn-med { background: var(--warning); }
-    .btn-hard { background: var(--danger); }
-
     .action-row {
       display: flex;
       justify-content: flex-end;
@@ -242,6 +219,31 @@
       margin-bottom: 20px;
       background: rgba(79, 70, 229, 0.02);
     }
+
+    /* Soru Yükleme Modülü */
+    .import-area {
+      width: 100%;
+      height: 180px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 13px;
+      margin-bottom: 12px;
+      resize: vertical;
+    }
+
+    .btn-import {
+      padding: 12px 20px;
+      background: var(--success);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -257,10 +259,11 @@
     <button class="tab-btn" onclick="switchMode('srs', this)">🧠 Aralıklı Tekrar (Anki)</button>
     <button class="tab-btn" onclick="switchMode('wrong', this)">❌ Yanlış Havuzu</button>
     <button class="tab-btn" onclick="switchMode('flashcard', this)">⚡ Spot Kartlar</button>
+    <button class="tab-btn" onclick="switchMode('import', this)">📥 Soru Yükle</button>
   </div>
 
   <div id="app-body">
-    <div class="meta-bar">
+    <div class="meta-bar" id="meta-bar">
       <span class="badge" id="branch-badge">Farmakoloji</span>
       <span class="timer-badge" id="timer-display">⏱ 01:30</span>
       <span id="score-text">Puan: 0</span>
@@ -269,15 +272,7 @@
     <div id="quiz-view">
       <div class="question-card" id="question-text">Soru Yükleniyor...</div>
       <div class="options-grid" id="options-container"></div>
-      
       <div class="exp-box" id="explanation-box" style="display: none;"></div>
-      
-      <div class="srs-controls" id="srs-box" style="display: none;">
-        <button class="srs-btn btn-hard" onclick="rateSRS('hard')">🔴 Zor (1 Gün)</button>
-        <button class="srs-btn btn-med" onclick="rateSRS('med')">🟡 Orta (3 Gün)</button>
-        <button class="srs-btn btn-easy" onclick="rateSRS('easy')">🟢 Kolay (7 Gün)</button>
-      </div>
-
       <div class="action-row">
         <button class="next-btn" id="next-btn" onclick="nextQuestion()" disabled>Sonraki Soru ➔</button>
       </div>
@@ -291,11 +286,18 @@
         <button class="next-btn" onclick="nextCard()">Sonraki Spot ➔</button>
       </div>
     </div>
+
+    <div id="import-view" style="display: none;">
+      <h3>📥 Doğrudan Soru Ekle</h3>
+      <p style="font-size:14px; color:var(--subtext);">Sohbetten kopyaladığın soru metnini aşağıdaki kutuya yapıştırıp "Soruları Yükle" butonuna basman yeterli!</p>
+      <textarea class="import-area" id="import-input" placeholder="Soru verisini buraya yapıştır..."></textarea>
+      <button class="btn-import" onclick="importQuestions()">🚀 Soruları Uygulamaya Yükle</button>
+    </div>
   </div>
 </div>
 
 <script>
-  const sampleQuestions = [
+  let defaultQuestions = [
     {
       id: 1,
       branch: "Farmakoloji",
@@ -304,32 +306,11 @@
       options: ["Sugammadek", "Atropin", "Pirenzepin", "Edrofonyum", "Neostigmin"],
       correct: 0,
       exp: "Sugammadek, roküronyum ve veküronyumu plazmada kapsülleyerek bağlayan ve nöromüsküler blokajı hızla geri çeviren modifiye gama-siklodektrindir."
-    },
-    {
-      id: 2,
-      branch: "Dahiliye",
-      year: "2023 İlkbahar",
-      text: "Tip 1 Diyabetes Mellitus tanılı bir hastada ketoasidoz tablosunda öncelikli acil tedavi yaklaşımı hangisidir?",
-      options: ["Oral Antidiyabetik", "IV İzotonik NaCl & Regüler İnsülin", "Bikarbonat İnfüzyonu", "Subkutan Glukagon", "Potasyum Kısıtlaması"],
-      correct: 1,
-      exp: "DKA tedavisinde ilk ve en kritik adım dehidratasyonu düzeltmek için IV izotonik serum fizyolojik başlanması ve eş zamanlı regüler insülin infüzyonudur."
-    },
-    {
-      id: 3,
-      branch: "Anatomi",
-      year: "2022 Sonbahar",
-      text: "Nervus radialis hasarında görülen tipik motor kayıp aşağıdakilerden hangisidir?",
-      options: ["Düşük El", "Pençe El", "Ebe Eli", "Maymun Eli", "Karpal Tünel Sendromu"],
-      correct: 0,
-      exp: "N. radialis önkol ekstansör kaslarını uyardığı için felcinde ekstansiyon yaptırılamaz ve 'Düşük El' tablosu gelişir."
     }
   ];
 
-  const flashcards = [
-    { front: "Sugammadek neyin antagonistidir?", back: "Roküronyum ve Veküronyum" },
-    { front: "N. radialis felcinde ne görülür?", back: "Düşük El" },
-    { front: "DKA tedavisinde ilk adım nedir?", back: "IV İzotonik NaCl Hidrasyonu" }
-  ];
+  let sampleQuestions = JSON.parse(localStorage.getItem('tus_custom_qs')) || defaultQuestions;
+  let wrongQuestions = JSON.parse(localStorage.getItem('tus_wrong_qs')) || [];
 
   let currentMode = 'quiz';
   let currentIdx = 0;
@@ -339,7 +320,10 @@
   let cardFlipped = false;
   let cardIdx = 0;
 
-  let wrongQuestions = JSON.parse(localStorage.getItem('tus_wrong_qs')) || [];
+  const flashcards = [
+    { front: "Sugammadek neyin antagonistidir?", back: "Roküronyum ve Veküronyum" },
+    { front: "N. radialis felcinde ne görülür?", back: "Düşük El" }
+  ];
 
   function initApp() {
     loadQuestion();
@@ -355,12 +339,14 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btnElement.classList.add('active');
 
-    document.getElementById('quiz-view').style.display = (mode === 'flashcard') ? 'none' : 'block';
+    document.getElementById('quiz-view').style.display = (mode === 'quiz' || mode === 'srs' || mode === 'wrong') ? 'block' : 'none';
     document.getElementById('flashcard-view').style.display = (mode === 'flashcard') ? 'block' : 'none';
+    document.getElementById('import-view').style.display = (mode === 'import') ? 'block' : 'none';
+    document.getElementById('meta-bar').style.display = (mode === 'import') ? 'none' : 'flex';
 
     if (mode === 'flashcard') {
       loadCard();
-    } else {
+    } else if (mode === 'quiz' || mode === 'srs' || mode === 'wrong') {
       currentIdx = 0;
       loadQuestion();
     }
@@ -372,12 +358,10 @@
     startTimer();
 
     let pool = sampleQuestions;
-    if (currentMode === 'wrong') {
-      pool = wrongQuestions.length > 0 ? wrongQuestions : sampleQuestions;
-    }
+    if (currentMode === 'wrong') pool = wrongQuestions.length > 0 ? wrongQuestions : [];
 
     if (pool.length === 0) {
-      document.getElementById('question-text').innerText = "Bu modda henüz soru bulunmuyor!";
+      document.getElementById('question-text').innerText = "Bu modda soru bulunmuyor!";
       document.getElementById('options-container').innerHTML = "";
       return;
     }
@@ -385,9 +369,7 @@
     const q = pool[currentIdx % pool.length];
     document.getElementById('branch-badge').innerText = `${q.branch} (${q.year})`;
     document.getElementById('question-text').innerText = `${currentIdx + 1}. ${q.text}`;
-    
     document.getElementById('explanation-box').style.display = 'none';
-    document.getElementById('srs-box').style.display = 'none';
     document.getElementById('next-btn').disabled = true;
 
     const container = document.getElementById('options-container');
@@ -422,20 +404,10 @@
     }
 
     document.getElementById('score-text').innerText = `Puan: ${score}`;
-
     const expBox = document.getElementById('explanation-box');
     expBox.innerHTML = `<strong>Açıklama:</strong> ${q.exp}`;
     expBox.style.display = 'block';
-
-    if (currentMode === 'srs') {
-      document.getElementById('srs-box').style.display = 'flex';
-    } else {
-      document.getElementById('next-btn').disabled = false;
-    }
-  }
-
-  function rateSRS(level) {
-    nextQuestion();
+    document.getElementById('next-btn').disabled = false;
   }
 
   function nextQuestion() {
@@ -472,6 +444,24 @@
   function nextCard() {
     cardIdx++;
     loadCard();
+  }
+
+  function importQuestions() {
+    const input = document.getElementById('import-input').value;
+    try {
+      const newQs = JSON.parse(input);
+      if (Array.isArray(newQs)) {
+        sampleQuestions = sampleQuestions.concat(newQs);
+        localStorage.setItem('tus_custom_qs', JSON.stringify(sampleQuestions));
+        alert(`${newQs.length} adet yeni TUS sorusu başarıyla yüklendi!`);
+        document.getElementById('import-input').value = '';
+        switchMode('quiz', document.querySelectorAll('.tab-btn')[0]);
+      } else {
+        alert("Hatalı veri formatı!");
+      }
+    } catch (e) {
+      alert("Yapıştırılan metin geçerli bir soru formatında değil.");
+    }
   }
 
   initApp();
