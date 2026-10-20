@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TUS Pro - Derece Çalışma İstasyonu</title>
-  <!-- PWA ve Mobil Uyumluluk Meta Etiketleri -->
+  
+  <!-- Mobil Uygulama ve İkon Ayarları -->
   <meta name="theme-color" content="#4f46e5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/387/387561.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/387/387561.png">
+
   <style>
     :root {
       --bg: #f8fafc;
@@ -223,7 +227,6 @@
       cursor: not-allowed;
     }
 
-    /* Flashcard Modu Stilleri */
     .flashcard {
       min-height: 200px;
       display: flex;
@@ -292,7 +295,6 @@
 </div>
 
 <script>
-  // Başlangıç Veritabanı
   const sampleQuestions = [
     {
       id: 1,
@@ -329,7 +331,6 @@
     { front: "DKA tedavisinde ilk adım nedir?", back: "IV İzotonik NaCl Hidrasyonu" }
   ];
 
-  // Uygulama Durumu (State)
   let currentMode = 'quiz';
   let currentIdx = 0;
   let score = 0;
@@ -338,7 +339,6 @@
   let cardFlipped = false;
   let cardIdx = 0;
 
-  // Yanlış Havuzu
   let wrongQuestions = JSON.parse(localStorage.getItem('tus_wrong_qs')) || [];
 
   function initApp() {
@@ -415,7 +415,6 @@
     if (selectedIdx === q.correct) {
       score += 10;
     } else {
-      // Yanlış havuza ekle
       if (!wrongQuestions.some(item => item.id === q.id)) {
         wrongQuestions.push(q);
         localStorage.setItem('tus_wrong_qs', JSON.stringify(wrongQuestions));
@@ -424,7 +423,6 @@
 
     document.getElementById('score-text').innerText = `Puan: ${score}`;
 
-    // Açıklama Göster
     const expBox = document.getElementById('explanation-box');
     expBox.innerHTML = `<strong>Açıklama:</strong> ${q.exp}`;
     expBox.style.display = 'block';
@@ -437,7 +435,6 @@
   }
 
   function rateSRS(level) {
-    // SRS zorluk seviyesi kaydedilebilir
     nextQuestion();
   }
 
@@ -460,7 +457,6 @@
     }, 1000);
   }
 
-  // Flashcard İşlemleri
   function loadCard() {
     cardFlipped = false;
     const card = flashcards[cardIdx % flashcards.length];
@@ -478,7 +474,6 @@
     loadCard();
   }
 
-  // Başlat
   initApp();
 </script>
 
