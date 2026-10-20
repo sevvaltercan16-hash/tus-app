@@ -203,22 +203,6 @@
       cursor: not-allowed;
     }
 
-    .flashcard {
-      min-height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px;
-      border: 2px dashed var(--primary);
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      background: rgba(79, 70, 229, 0.02);
-    }
-
     .import-area {
       width: 100%;
       height: 180px;
@@ -256,7 +240,6 @@
     <button class="tab-btn active" onclick="switchMode('quiz', this)">📝 Test Modu</button>
     <button class="tab-btn" onclick="switchMode('srs', this)">🧠 Aralıklı Tekrar (Anki)</button>
     <button class="tab-btn" onclick="switchMode('wrong', this)">❌ Yanlış Havuzu</button>
-    <button class="tab-btn" onclick="switchMode('flashcard', this)">⚡ Spot Kartlar</button>
     <button class="tab-btn" onclick="switchMode('import', this)">📥 Soru Yükle</button>
   </div>
 
@@ -273,15 +256,6 @@
       <div class="exp-box" id="explanation-box" style="display: none;"></div>
       <div class="action-row">
         <button class="next-btn" id="next-btn" onclick="nextQuestion()" disabled>Sonraki Soru ➔</button>
-      </div>
-    </div>
-
-    <div id="flashcard-view" style="display: none;">
-      <div class="flashcard" id="flashcard-box" onclick="flipCard()">
-        <span id="card-content">Kart Yükleniyor (Çevirmek için tıkla)</span>
-      </div>
-      <div class="action-row">
-        <button class="next-btn" onclick="nextCard()">Sonraki Spot ➔</button>
       </div>
     </div>
 
@@ -316,17 +290,9 @@
   let score = 0;
   let timer;
   let timeLeft = 90;
-  let cardFlipped = false;
-  let cardIdx = 0;
   let currentShuffledOptions = [];
   let currentCorrectIdx = 0;
 
-  const flashcards = [
-    { front: "Sugammadek neyin antagonistidir?", back: "Roküronyum ve Veküronyum" },
-    { front: "N. radialis felcinde ne görülür?", back: "Düşük El" }
-  ];
-
-  // Diziyi Karıştırma (Fisher-Yates)
   function shuffleArray(array) {
     let arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -337,7 +303,6 @@
   }
 
   function initApp() {
-    // Soru havuzunu her açılışta karıştır
     sampleQuestions = shuffleArray(sampleQuestions);
     loadQuestion();
     startTimer();
@@ -353,13 +318,10 @@
     btnElement.classList.add('active');
 
     document.getElementById('quiz-view').style.display = (mode === 'quiz' || mode === 'srs' || mode === 'wrong') ? 'block' : 'none';
-    document.getElementById('flashcard-view').style.display = (mode === 'flashcard') ? 'block' : 'none';
     document.getElementById('import-view').style.display = (mode === 'import') ? 'block' : 'none';
     document.getElementById('meta-bar').style.display = (mode === 'import') ? 'none' : 'flex';
 
-    if (mode === 'flashcard') {
-      loadCard();
-    } else if (mode === 'quiz' || mode === 'srs' || mode === 'wrong') {
+    if (mode === 'quiz' || mode === 'srs' || mode === 'wrong') {
       currentIdx = 0;
       loadQuestion();
     }
@@ -455,23 +417,6 @@
         document.getElementById('timer-display').innerText = "⏱ Süre Bitti!";
       }
     }, 1000);
-  }
-
-  function loadCard() {
-    cardFlipped = false;
-    const card = flashcards[cardIdx % flashcards.length];
-    document.getElementById('card-content').innerText = `❓ ${card.front}`;
-  }
-
-  function flipCard() {
-    const card = flashcards[cardIdx % flashcards.length];
-    cardFlipped = !cardFlipped;
-    document.getElementById('card-content').innerText = cardFlipped ? `💡 ${card.back}` : `❓ ${card.front}`;
-  }
-
-  function nextCard() {
-    cardIdx++;
-    loadCard();
   }
 
   function importQuestions() {
