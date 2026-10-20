@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TUS Pro - Derece Çalışma İstasyonu</title>
   
-  <!-- PWA ve Mobil İkon Ayarları -->
   <meta name="theme-color" content="#4f46e5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -220,7 +219,6 @@
       background: rgba(79, 70, 229, 0.02);
     }
 
-    /* Soru Yükleme Modülü */
     .import-area {
       width: 100%;
       height: 180px;
@@ -292,6 +290,7 @@
       <p style="font-size:14px; color:var(--subtext);">Sohbetten kopyaladığın soru metnini aşağıdaki kutuya yapıştırıp "Soruları Yükle" butonuna basman yeterli!</p>
       <textarea class="import-area" id="import-input" placeholder="Soru verisini buraya yapıştır..."></textarea>
       <button class="btn-import" onclick="importQuestions()">🚀 Soruları Uygulamaya Yükle</button>
+      <button class="btn-import" style="background:var(--danger); margin-left:8px;" onclick="resetQuestions()">🗑 Soruları Sıfırla</button>
     </div>
   </div>
 </div>
@@ -299,13 +298,184 @@
 <script>
   let defaultQuestions = [
     {
-      id: 1,
+      id: 201,
+      branch: "Anatomi",
+      year: "2023 Sonbahar",
+      text: "Fossa cranii media'da yer alan ve nervus maxillaris'in kafatasını terk ettiği açıklık aşağıdakilerden hangisidir?",
+      options: ["Foramen rotundum", "Foramen ovale", "Foramen spinosum", "Foramen lacerum", "Fissura orbitalis superior"],
+      correct: 0,
+      exp: "Nervus maxillaris (V2) fossa cranii media'da bulunan foramen rotundum'dan geçerek fossa pterygopalatina'ya ulaşır."
+    },
+    {
+      id: 202,
+      branch: "Anatomi",
+      year: "2023 İlkbahar",
+      text: "Ulnar sinir hasarında aşağıdaki kaslardan hangisinin fonksiyon kaybına bağlı olarak 'Pençe El' (Claw hand) deformitesi gelişir?",
+      options: ["Musculus lumbricales I ve II", "Musculus adductor pollicis ve interossei", "Musculus flexor carpi radialis", "Musculus extensor digitorum", "Musculus opponens pollicis"],
+      correct: 1,
+      exp: "Nervus ulnaris, mm. interossei dorsales/palmares ve 3.-4. lumbrical kasları uyarır. Hasarında 4. ve 5. parmaklarda hiperekstansiyon ve fleksiyon kaybı sonucu 'Pençe El' tablosu gelişir."
+    },
+    {
+      id: 203,
+      branch: "Histoloji & Embriyoloji",
+      year: "2023 Sonbahar",
+      text: "Pankreasın ekzokrin acinus hücrelerinde bazal bölgenin bazofilik boyanmasından sorumlu olan hücresel organel aşağıdakilerden hangisidir?",
+      options: ["Granüllü Endoplazmik Retikulum (GER)", "Golgi Apareyi", "Mitozom", "Düz Endoplazmik Retikulum", "Lizozom"],
+      correct: 0,
+      exp: "Pankreas ekzokrin acinar hücrelerinde proteinden zengin sindirim enzimlerinin sentezinden sorumlu GER ve ribozom yoğunluğu nedeniyle bazal bölge kuvvetli bazofilik boyanır."
+    },
+    {
+      id: 204,
+      branch: "Fizyoloji",
+      year: "2023 İlkbahar",
+      text: "Çizgili kas kasılmasında kalsiyum iyonlarının bağlandığı ve troponin kompleksinin konformasyonel değişimini başlatan alt birim hangisidir?",
+      options: ["Troponin C", "Troponin I", "Troponin T", "Tropomiyozin", "Miyozin başı"],
+      correct: 0,
+      exp: "Sarkoplazmik retikulumdan salınan Ca2+ iyonları Troponin C alt birimine bağlanarak tropomiyozinin kaymasını ve miyozin-aktin etkileşimini sağlar."
+    },
+    {
+      id: 205,
+      branch: "Biyokimya",
+      year: "2023 Sonbahar",
+      text: "Açlık durumunda karaciğerde glukoneojenez yolculuğunda pirüvatın oksaloasetata dönüşümünü katalizleyen ve asetil-KoA ile allosterik olarak aktive edilen enzim hangisidir?",
+      options: ["Pirüvat karboksilaz", "PEPCK (Fosfoenolpirüvat karboksikinaz)", "Fruktoz-1,6-bisfosfataz", "Glukoz-6-fosfataz", "Pirüvat dehidrojenaz"],
+      correct: 0,
+      exp: "Pirüvat karboksilaz, glukoneojenezin ilk adımı olan pirüvat -> oksaloasetat dönüşümünü yapar ve artan Asetil-KoA seviyeleriyle pozitif olarak düzenlenir."
+    },
+    {
+      id: 206,
+      branch: "Mikrobiyoloji",
+      year: "2023 İlkbahar",
+      text: "Gram olumsuz, oksidaz pozitif, martı kanadı (veya S harfi) görünümünde ve microaerofilik üreme özelliğine sahip gastroenterit etkeni bakteri hangisidir?",
+      options: ["Campylobacter jejuni", "Salmonella enteritidis", "Shigella dysenteriae", "Escherichia coli", "Yersinia enterocolitica"],
+      correct: 0,
+      exp: "Campylobacter jejuni, martı kanadı kıvrık çomak görünümünde, 42°C'de ve mikroaerofilik ortamda üreyen, gastroenterit etkeni oksidaz (+) bakteridir."
+    },
+    {
+      id: 207,
+      branch: "Patoloji",
+      year: "2023 Sonbahar",
+      text: "Mide karsinomunun overe bilateral metastazı ile karakterize, taşlı yüzük hücreli histolojik yapı içeren tümör aşağıdakilerden hangisidir?",
+      options: ["Krukenberg tümörü", "Brenner tümörü", "Granüloza hücreli tümör", "Dysgerminoma", "Seröz kistadenokarsinom"],
+      correct: 0,
+      exp: "Krukenberg tümörü, sıklıkla mideden (taşlı yüzük hücreli karsinom) overlere bilateral lenfofatojen yolla metastaz yapan sekonder over tümörüdür."
+    },
+    {
+      id: 208,
+      branch: "Farmakoloji",
+      year: "2023 İlkbahar",
+      text: "Aşağıdaki antikaagülanlardan hangisi doğrudan Faktör Xa inhibisyonu yaparak etki gösterir?",
+      options: ["Rivaroksaban", "Dabigatran", "Varfarin", "Heparin", "Bivalirudin"],
+      correct: 0,
+      exp: "Rivaroksaban, Apiksaban ve Edoksaban oral yoldan kullanılan doğrudan (direkt) Faktör Xa inhibitörleridir. Dabigatran ise doğrudan trombin (Faktör IIa) inhibitörüdür."
+    },
+    {
+      id: 209,
+      branch: "Dahiliye",
+      year: "2023 Sonbahar",
+      text: "Nefrotik sendrom tanılı erişkin bir hastada böbrek biyopsisinde ışık mikroskobunda glomerüllerde belirgin bazal membran kalınlaşması ve 'spike' (diken) oluşumu görülmesi en olası tanı hangisidir?",
+      options: ["Membranöz Glomerulonefrit", "Minimal Değişiklik Hastalığı", "FSGS", "IgA Nefropatisi", "Rapidly Progressive GN"],
+      correct: 0,
+      exp: "Erişkin nefrotik sendromun en sık nedenlerinden olan Membranöz GN'de gümüşleme boyasında podosit ayağı altındaki immün kompleks birikimlerine bağlı 'spike & dome' görünümü izlenir."
+    },
+    {
+      id: 210,
+      branch: "Pediatri",
+      year: "2023 İlkbahar",
+      text: "Çocukluk çağında sık görülen, paroksismal öksürük nöbetleri ve öksürük sonunda iç çekme (stridor benzeri ses) ile seyreden, koklaş reaksiyonu pozitif bakteriyel enfeksiyon etkeni hangisidir?",
+      options: ["Bordetella pertussis", "Corynebacterium diphtheriae", "Haemophilus influenzae", "Mycoplasma pneumoniae", "Streptococcus pneumoniae"],
+      correct: 0,
+      exp: "Boğmaca etkeni Bordetella pertussis, kataral dönemi takip eden paroksismal öksürük nöbetleri ve stridorlu iç çekme (staccato cough) ile karakterizedir."
+    },
+    {
+      id: 211,
+      branch: "Pediatri",
+      year: "2023 Sonbahar",
+      text: "Siyanotik doğumsal kalp hastalıkları içinde en sık görülen ve EKG/Tele'de 'Tahta Ayakkabı' (coeur en sabot) kalp silüeti veren tablo hangisidir?",
+      options: ["Fallot Tetralojisi (TOF)", "Büyük Damarların Transpozisyonu (TGA)", "Trunkus Arteriyozus", "Triküspit Atrezisi", "Ebstein Anomalisi"],
+      correct: 0,
+      exp: "Fallot Tetralojisi (VSD, Pulmoner Stenoz, Sağ Ventrikül Hipertrofisi, Aort Atağı) siyanotik KKH'ların en sık nedeni olup akciğer kanlanmasında azalma ve sağ ventrikül hipertrofisiyle tahta ayakkabı silüeti verir."
+    },
+    {
+      id: 212,
+      branch: "Genel Cerrahi",
+      year: "2023 İlkbahar",
+      text: "Meme kanseri taramasında yüksek riskli kadınlarda altın standart kabul edilen ve duyarlılığı en yüksek olan görüntüleme yöntemi hangisidir?",
+      options: ["Meme MRG", "Mamografi", "Meme Ultrasonografisi", "PET-BT", "Sintigrafi"],
+      correct: 0,
+      exp: "Meme MRG, yüksek riskli (BRCA mutasyonlu veya yoğun meme dokusuna sahip) kadınlarda kanser saptama duyarlılığı en yüksek olan görüntüleme modalitesidir."
+    },
+    {
+      id: 213,
+      branch: "Kadın Doğum",
+      year: "2023 Sonbahar",
+      text: "Serviks kanseri taramasında kullanılan Pap-smear testinde malignite öncesi lezyonların en sık yerleştiği anatomik bölge aşağıdakilerden hangisidir?",
+      options: ["Skuamokolumnar Bileşke (Transformasyon Bölgesi)", "Endoservikal Kanal", "Ektoserviks Dış Yüzü", "Forniks Posterior", "Uterus Korpusu"],
+      correct: 0,
+      exp: "HPV enfeksiyonu ve servikal neoplaziler (CIN) en sık endoservikal silindirik epitel ile ektoservikal yassı epitelin karşılaştığı 'Transformasyon Bölgesi'nde gelişir."
+    },
+    {
+      id: 214,
+      branch: "Dahiliye",
+      year: "2023 İlkbahar",
+      text: "Megaloblastik anemide periferik yaymada karakteristik olarak izlenen nötrofil patolojisi aşağıdakilerden hangisidir?",
+      options: ["Hipersegmenter nötrofiller", "Pelger-Huët anomalisi", "Auer çubukları", "Döhle cisimcikleri", "Toxic granülasyon"],
+      correct: 0,
+      exp: "B12 veya Folat eksikliğine bağlı Megaloblastik anemide DNA sentez bozukluğu nedeniyle periferik kanda 5 ve daha fazla loblu hipersegmenter nötrofiller (PMNL) görülür."
+    },
+    {
+      id: 215,
       branch: "Farmakoloji",
       year: "2023 Sonbahar",
-      text: "Aşağıdakilerden hangisi roküronyum ve veküronyum ile oluşan nöromüsküler blokajı selektif olarak geri çeviren ajandır?",
-      options: ["Sugammadek", "Atropin", "Pirenzepin", "Edrofonyum", "Neostigmin"],
+      text: "Aşağıdaki antihipertansif ilaç gruplarından hangisi bradikinin yıkımını engelleyerek kuru öksürük ve anjioödem yan etkisine yol açar?",
+      options: ["ACE İnhibitörleri", "Anjiyotensin Reseptör Blokörleri (ARB)", "Kalsiyum Kanal Blokörleri", "Tiyazid Diüretikler", "Beta Blokörler"],
       correct: 0,
-      exp: "Sugammadek, roküronyum ve veküronyumu plazmada kapsülleyerek bağlayan ve nöromüsküler blokajı hızla geri çeviren modifiye gama-siklodektrindir."
+      exp: "ACE (Anjiyotensin Dönüştürücü Enzim) aynı zamanda Kininaz II enzimidir. İnhibisyonunda ortamda biriken Bradikinin ve Maddesi P akciğerde kuru öksürüğe neden olur."
+    },
+    {
+      id: 216,
+      branch: "Anatomi",
+      year: "2022 Sonbahar",
+      text: "Diz ekleminin fleksiyonu sırasında tibia'nın femur üzerinde öne doğru kaymasını önleyen bağ aşağıdakilerden hangisidir?",
+      options: ["Ligamentum cruciatum anterius (Ön Çapraz Bağ)", "Ligamentum cruciatum posterius (Arka Çapraz Bağ)", "Ligamentum collaterale tibiale", "Ligamentum patellae", "Ligamentum popliteum obliquum"],
+      correct: 0,
+      exp: "Ön çapraz bağ (LCA / ACL), tibia'nın femur önünde öne kaymasını (anterior çekmece bulgusu) engelleyen ana stabilizandır."
+    },
+    {
+      id: 217,
+      branch: "Biyokimya",
+      year: "2022 İlkbahar",
+      text: "Aşağıdaki amino asitlerden hangisi sırf ketojenik özellikte olup hiçbir şekilde glukoza dönüşemez?",
+      options: ["Lösin ve Lizin", "Alanin ve Glisin", "Glutamat ve Aspartat", "Fenilalanin ve Tirozin", "Triptofan ve İzolösin"],
+      correct: 0,
+      exp: "Lösin ve Lizin saf (sırf) ketojenik amino asitlerdir; yıkımları sonucu glukoneojeneze giren ara ürünler değil, yalnızca Asetil-KoA veya Asetoasetat oluşur."
+    },
+    {
+      id: 218,
+      branch: "Patoloji",
+      year: "2023 İlkbahar",
+      text: "Akut iltihap yanıtında lökositlerin damar endoteline tutunmasını ve yuvarlanmasını (rolling) sağlayan hücre yüzey adezyon molekülü ailesi hangisidir?",
+      options: ["Selektinler (E, P, L-selektin)", "İntegrinler (LFA-1, VLA-4)", "İmmünoglobulin süper ailesi (ICAM-1, VCAM-1)", "Cadherinler", "PECAMA-1 (CD31)"],
+      correct: 0,
+      exp: "Lökosit marjinasyonu ve zayıf tutunma/yuvarlanma (rolling) aşamasını Selektinler; sıkı yapışmayı (adhesion) İntegrinler ve ICAM-1/VCAM-1; diyapedezi ise PECAM-1 üstlenir."
+    },
+    {
+      id: 219,
+      branch: "Genel Cerrahi",
+      year: "2023 Sonbahar",
+      text: "Safra kesesi taşlarına bağlı gelişen Akut Kolesistit vakalarında fizik muayenede sağ üst kadrana derin palpasyon yapılırken hastanın nefesini ağrı nedeniyle tutması bulgusu hangisidir?",
+      options: ["Murphy bulgusu", "Rovsing bulgusu", "Cullen işareti", "Grey-Turner işareti", "Kehr belirtisi"],
+      correct: 0,
+      exp: "Sağ hipokondriyuma bastırılırken hastaya derin nefes aldırıldığında iltihaplı safra kesesinin ele temasıyla nefesin kesilmesi pozitif Murphy bulgusudur."
+    },
+    {
+      id: 220,
+      branch: "Pediatri",
+      year: "2023 İlkbahar",
+      text: "Çocuklarda en sık görülen döküntülü hastalık olan ve Human Herpes Virüs 6 (HHV-6) ile gelişen, yüksek ateş düştükten sonra döküntünün çıkmasıyla karakterize tablo hangisidir?",
+      options: ["Roseola Infantum (Altıncı Hastalık)", "Eritema İnfeksiyozum (Beşinci Hastalık)", "Kızamık", "Suçiçeği", "Kızıl"],
+      correct: 0,
+      exp: "Roseola Infantum (Ezantem Subitum / 6. Hastalık), 3-5 gün süren yüksek ateşin aniden düşmesiyle gövdede beliren makülopapüler döküntüyle tipiktir. Etken HHV-6'dır."
     }
   ];
 
@@ -461,6 +631,15 @@
       }
     } catch (e) {
       alert("Yapıştırılan metin geçerli bir soru formatında değil.");
+    }
+  }
+
+  function resetQuestions() {
+    if (confirm("Eski hafızayı temizleyip varsayılan 20 soruya dönmek istediğine emin misin?")) {
+      localStorage.removeItem('tus_custom_qs');
+      sampleQuestions = defaultQuestions;
+      alert("Sorular sıfırlandı ve 20 soruluk paket yüklendi!");
+      switchMode('quiz', document.querySelectorAll('.tab-btn')[0]);
     }
   }
 
